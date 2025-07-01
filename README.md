@@ -10,9 +10,8 @@ A beautiful, responsive weather application that shows real-time weather for any
 
 ![Weather App Screenshot](screenshot.png)
 
-> _Include a screenshot file named `screenshot.png` in your repo to show the preview_
+![Screenshot 2025-07-01 195229](https://github.com/user-attachments/assets/00cbab67-517e-4819-a7f7-bd23a54a1a1a)
 
----
 
 ## 💡 Features
 

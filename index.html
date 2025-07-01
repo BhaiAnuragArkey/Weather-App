@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <style>
+    :root {
+      --bg-light: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      --bg-dark: #1e1e1e;
+      --text-light: #333;
+      --text-dark: #f1f1f1;
+      --card-light: rgba(255, 255, 255, 0.2);
+      --card-dark: rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: var(--bg-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.4s ease;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .container {
+      background: var(--card-light);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 30px 40px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      color: var(--text-light);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    body.dark .container {
+      background: var(--card-dark);
+      color: var(--text-dark);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+
+    .toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .toggle input {
+      display: none;
+    }
+
+    .toggle label {
+      background: #ccc;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-block;
+      height: 24px;
+      position: relative;
+      width: 50px;
+    }
+
+    .toggle label::after {
+      content: '';
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      transition: 0.3s;
+    }
+
+    .toggle input:checked + label {
+      background: #555;
+    }
+
+    .toggle input:checked + label::after {
+      transform: translateX(26px);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .search-box input {
+      padding: 12px;
+      width: 60%;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-box button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffffff;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .search-box button:hover {
+      background-color: #ddd;
+    }
+
+    body.dark .search-box button {
+      background-color: #444;
+      color: #f1f1f1;
+    }
+
+    @keyframes bounceFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1) translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.weather-info img {
+  width: 80px;
+  height: 80px;
+  margin: 10px auto;
+  animation: bounceFade 0.8s ease-in-out;
+}
+
+
+    .weather-info h2 {
+      margin: 10px 0;
+      font-size: 1.4rem;
+    }
+
+    .weather-info p {
+      font-size: 1rem;
+      margin: 4px 0;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toggle">
+    <input type="checkbox" id="darkModeToggle">
+    <label for="darkModeToggle"></label>
+  </div>
+
+  <div class="container">
+    <h1>🌦️ Live Weather</h1>
+    <div class="search-box">
+      <input type="text" id="cityInput" placeholder="Enter city name" />
+      <button onclick="fetchWeather()">Search</button>
+    </div>
+    <div class="weather-info" id="weatherInfo"></div>
+    <p class="error" id="errorMsg"></p>
+  </div>
+
+  <script>
+    const apiKey = "5cd05732723e4fae85e130111250107 ";
+    const baseUrl = "https://api.weatherapi.com/v1/current.json";
+
+    document.getElementById("cityInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") fetchWeather();
+    });
+
+    async function fetchWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      const weatherInfo = document.getElementById("weatherInfo");
+      const errorMsg = document.getElementById("errorMsg");
+
+      if (!city) {
+        errorMsg.textContent = "Please enter a city name.";
+        weatherInfo.innerHTML = "";
+        return;
+      }
+
+      const url = `${baseUrl}?key=${apiKey}&q=${encodeURIComponent(city)}`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("City not found");
+
+        const data = await response.json();
+        const current = data.current;
+        const location = data.location;
+
+        weatherInfo.innerHTML = `
+          <img src="https:${current.condition.icon}" alt="${current.condition.text}" />
+          <h2>${location.name}, ${location.region}, ${location.country}</h2>
+          <p><strong>Condition:</strong> ${current.condition.text}</p>
+          <p><strong>Temperature:</strong> ${current.temp_c}°C</p>
+          <p><strong>Feels Like:</strong> ${current.feelslike_c}°C</p>
+          <p><strong>Wind:</strong> ${current.wind_kph} kph</p>
+          <p><strong>Humidity:</strong> ${current.humidity}%</p>
+        `;
+        errorMsg.textContent = "";
+
+      } catch (error) {
+        weatherInfo.innerHTML = "";
+        errorMsg.textContent = "Could not fetch weather data. Try another city.";
+      }
+    }
+
+    // Dark mode toggle
+    const toggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+
+    // Load from localStorage
+    if (localStorage.getItem('mode') === 'dark') {
+      body.classList.add('dark');
+      toggle.checked = true;
+    }
+
+    toggle.addEventListener('change', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('mode', body.classList.contains('dark') ? 'dark' : 'light');
+    });
+  </script>
+
+</body>
+</html>

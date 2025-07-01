@@ -4,11 +4,7 @@ A beautiful, responsive weather application that shows real-time weather for any
 
 ## 🔗 Live Demo
 
-[👉 View the App](https://your-username.github.io/weather-app/)
-
-> _Replace `your-username` with your actual GitHub username_
-
----
+[👉 View the App](https://bhaianuragarkey.github.io/Weather-App/)
 
 ## 📸 Preview
 
